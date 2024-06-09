@@ -1,0 +1,525 @@
+Semana 0:
+Probar qiskit e instalar todo
+Ver como funciona algoritmo VQE
+
+
+Semana 1:
+Instalar Ubuntu, qiskit, qiskit_nature...
+IBM_account.ipynb
+Entorno virtual
+
+
+0_basics/modeling_atom.ipynb:
+    ver como funciona
+
+
+Intenté ejecutar vqe en ordenador de IBM pero no fui capaz
+
+
+0_basics/helium.ipynb:
+    No se encontró distancia de enlace. No forma moleculas?
+    No, el helio no forma moléculas en condiciones normales. 
+    El helio es un elemento gaseoso monoatómico, lo que significa que en su forma natural,
+    existe como átomos individuales en lugar de formar enlaces covalentes para crear moléculas.
+    Esto se debe a que el helio tiene una configuración electrónica estable con una capa de
+    electrones completa, por lo que no tiene una tendencia a compartir electrones con otros
+    átomos para formar enlaces moleculares.
+
+
+0_basics/electronic_structure.ipynb:
+    no recuerdo que hice
+
+
+0_basics/hydrogen.ipynb: -> 1_hydrogen/hydrogen_1:
+    Barrido de distancias encontrando ground energy.
+    Solucion 'teórica' y la obtenida con el algoritmo VQE.
+    Añadí un modelo de ruido de dos ordenadores al algoritmo VQE.
+    No fui capaz de obtener el ruido.
+
+
+
+Semana 2:
+1_hydrogen/hydrogen_1/noise.ipynb:
+    Aprender a añadir ruido a una medida con el algoritmo vqe.
+    Cuanto mayor sea el número de shots, más precisa será la medida.
+
+hydrogen_noise.ipynb:
+    Repaso de conocimientos leyendo el TFM (citar ya que es buena bibilografía)
+    --- Añadir el ruido a las medidas del algoritmo VQE de la anterior Semana
+        con los modelos de ruido de un ordenador (FakeVigo) ver imágenes. ---
+
+
+
+Semana 3:
+hydrogen_noise.ipynb:
+    Mismas medidas que la Semana 2 pero quitando el modelo de ruido de los ordenadores.
+    También se ha hecho una nueva medida con 2**14 shots.
+
+hydrogen_noise_distribution.ipynb:
+    Se ha restado la energía obtenida por el algoritmo vqe a la energía 'teórica'.
+    Obteniendo un histograma para los distintos casos variando el número de shots.
+    Las diferencias de energía tienden a la izquierda (buscar motivo).
+    Hay algún punto muy separado del 0 (buscar motivo).
+    Intentar ejecutar en un ordenador de IBM.
+    Intentar hacerlo de nuevo creando un nuevo algoritmo VQE con otros ajustes (más
+    adelante se ha visto que por crear el algoritmo de cierta manera los resultados
+    no eran coherentes).
+
+2_yukawa/h_g_coefficients/electronic_energy.ipynb:
+    Se ha intentado crear un hamiltoniano poniendo los coeficientes h_pq y g_pqrs
+    simulando un átomo de hidrógeno con un solo electrón.
+    No se ha conseguido (supongo que está creando 2 electrones al crear el problem químico
+    ya que los elementos de la matriz g_pqrs son no nulos)
+
+0_basics/atom_vqe.ipynb:
+    Resolver un ansatz químico de un átomo de hidrógeno mediante el algoritmo vqe
+    (Funciona pero creo que de esta forma crea dos electrones)
+
+
+
+Semana 4:
+2_yukawa/h_g_coefficients/hydrogen:
+    Se ha conseguido resolver los problemas de la semana pasada de electronic_energy.ipynb.
+    Nos estaban dando unas energías que no eran, para solucionarlo se ha creado el algoritmo
+    VQE de una manera diferente, creando un ansatz forzando para que el número de partículas
+    sea 1 y el de orbitales sea la mitad de los orbitales de spin.
+    Intentar entender el motivo de porque antes no funcionaba e intentar entender lo que se
+    ha hecho para que funcione.
+
+    Cambiar los valores de la matriz h1_b parece que no afectan al resultado, solo afectan los
+    de h1_a (intentar buscar el motivo)
+    He probado a cambiar los valores de la matriz h1_b y el resultado final no parece cambiar.
+    He probado poniendo todo ceros y valores de -1000 en la diagonal de la matriz y en todos los
+    casos me da el autovalor más bajo de la otra matriz, la h1_a.
+    Creo que sé cuál es el motivo. Cuando creo el ansatz para definir el algoritmo VQE le paso
+    los siguientes parámetros.
+    ---
+    num_spatial_orbitals = int(fermionic_op.num_spin_orbitals/2)
+    num_particles = (1, 0)
+
+
+    ansatz = UCCSD(
+        num_spatial_orbitals,
+        num_particles,
+        mapper,
+        initial_state=HartreeFock(
+            num_spatial_orbitals,
+            num_particles,
+            mapper,
+        ),
+    )
+    ---
+    Si cambio num_particles por (0,1) el resultado de la energía sí que es el autovalor más
+    bajo de la matriz h1_b. Por lo tanto, entiendo que el primer elemento indica el número de
+    partículas con spin up y el segundo término las de spin down. Habrá que tener esto en cuenta
+    cuando hagamos sistemas con más de una partícula.
+
+2_yukawa/yukawa_1.ipynb:
+    He creado e hamiltoniano del potencia de Yukawa, para Z=1. Lo he hecho a partir de las
+    soluciones radiales de la ecuación de ondas. He usado los valores con l=0.
+    Por ejemplo, para h_22 por qué se usa <2 0 0 | H | 2 0 0> pero no se uso <2 1 0 | H | 2 1 0>?
+    <2 0 0 | H | 2 1 0 > = 0, debido a que se anula porque los armónicos esféricos no son iguales.
+    Intentar automatizar el calculo de los armónicos esféricos para obtener cualquiera de ellos
+    a partir de los polinomios de Laguerre.
+    Ver que pasa con valores de alpha distintos de 0 (si es 0 es igual que el átomo de hidrógeno)
+
+
+
+Semana 5:
+2_yukawa/yukawa_2.ipynb:
+    Se ha mejorado el código de yukawa.ipynb mediante los polinomios de Laguerre, los cuales me han
+    permitido crear tantas funciones de ondas radiales como quiera. (citar bibilografía)
+
+    Si creo un hamiltoniano con muchos estados, ahora he estado probando con 7, al resolverlo con el
+    algoritmo VQE bastantes veces me da como resultado la energía del segundo estado, -0.125. Entiendo
+    que aumentando el número de shots se soluciona el problema, pero supongo que hay que tener en cuenta
+    que cuanto mayor sea el número de estados, la medida será menos precisa.
+
+    Cuanto más aumente N, más veces me da un valor incorrecto. Parece que me da la energía del segundo
+    estado, -0.125.
+
+    Creo que he conseguido encontrar lo que estaba haciendo mal, aunque hay un par de cosas que no
+    entiendo muy bien.
+    Para solucionarlo he estado buscando y he encontrado esta página con un ejemplo diferente, pero que
+    define el ansatz igual que nosotros. En el punto 5 dice que es importante inicializar las medidas
+    con todos los parámetros en cero para así poder comenzar desde el estado inicial de Hartree-Fock
+    que he definido en el ansatz.
+
+    Continuo en yukawa_alpha
+
+2_yukawa/yukawa_alpha.ipynb:
+    Para unas medidas con shots = None
+    No entiendo muy bien que hace exactamente, pero creo que no sigue el mismo proceso que si le
+    introduces un número de shots. Esto pone en la documentación: shots (None or int) –
+    The number of shots. If None and approximation is True, it calculates the exact expectation values.
+    Otherwise, it calculates expectation values with sampling.
+    Por eso siempre me da el mismo valor de -0.499999999999906.
+
+    Los valores con mayor N parecen fallar en algunos puntos del final.
+    Que hace exactamente este Estimator a diferencia de AerEstimator?
+
+    Si defino shots=1 y maxiter=1 dentro del optimizador, que es el número máximo de iteracciones que
+    tiene el método del  gradiente, que en este caso estamos usando el optimizador SPSA. Al hacer esto
+    me sale como resultado la energía de uno de los estados y parece que todos se miden con una misma
+    probabilidad. Se podría ver un gráfico de barras con las veces que se repite cada autoestado. Al ir
+    aumentando shots y maxiter cada vez habrá un mayor número de valores en el autoestado de -0.5.
+
+    ---Igual es interesante estudiar estos gráficos para ver hasta que punto merece la pena aumentar shots
+       y maxiter teniendo en cuenta que al aumentarlos, el tiempo también aumenta---
+
+
+2_yukawa/yukawa_alpha_exact.ipynb:
+    Resultado muy similar al obtenido en yukawa_alpha.
+
+    Se ha obtenido la solucion exacta de la energía, obteniendo los autovalores del hamiltoniano de
+    manera exacta (analítica?), sin emplear el algoritmo VQE, para luego comprobar los datos obtenidos.
+    
+    Importante:
+    Para un número elevado de N los tiempos empiezan a ser muy altos, por lo tanto, explicar cual es el
+    motivo proncipal para usar los ordenadores cuánticos: para problemas complejos con un número elevado
+    de partículas, los ordenadores clásicos escalan exponencialmente, mientras que los cuánticos,
+    linealmente.
+
+    Revisar si es interesante los casos de alpha = 1
+
+    Para cualquier N puede observarse un comportamiento similar hasta alpha = 1, a partir de ese punto
+    pueden observarse los diferentes comportamientos. Cuanto mayor es N, más tiende a 0. Revisar si para 
+    N infinito la energía nunca es superior a 0.
+
+
+2_yukawa/yukawa_alpha_aer.ipynb:
+    Se ha introducido un error mediante los shots.
+
+    En este caso si no meto la posición inicial, al contrario que el caso anterior, las medidas parece que
+    funcionan mejor. No entiendo el motivo. Probar con COBYLA en vez de SPSA.
+
+    Cuanto más shots, menos error, como era de esperar. Pero más tiempo de ejecución.
+    He probado con el optimizador SPSA (creo que funciona por gradiente), al estar con Pablo me ha
+    dicho que el gradiente puede funcionar mal si encuentra minimos locales o si la pendiente es
+    cercana a 0, por lo tanto, tengo que volver a tomar las medidas con COBYLA. Poner aún así los 
+    resultados obtenidos con el otro y con el nuevo, explicando como funciona cada uno.
+
+    ---PROBAR COBYLA---
+
+    También tengo que entender que hace exactamente el ansatz UCCSD, Pablo no lo tiene muy claro. Él
+    hacía bucles con muchas puertas lógicas. Igual este tipo de ansatz ayuda a resolver sistemas atómicos
+    y moleculares.
+
+1_hydrogen/hydrogen_2 folder:
+    Se ha vuelto a ejecutar lo mismo que estaba hecho para el hidrógeno pero he cambiado el ansatz, usando
+    UCCSD en vez de TwoLocal. Tengo que entender como funciona bien UCCSD. Me ha dicho Pablo que el TwoLocal
+    que estaba utilizando solo tiene dos ¿puertas lógicas?, son muy pocas. El mete unas dentro de un bucle
+    y obtiene muchas más. Me pasará sus códigos para que pueda entenderlo.
+
+    Sigue habiendo algunos puntos que se va bastante.
+
+    ---PROBAR COBYLA para ver si se soluciona---
+
+    ---Hacer histogramas en vez de gráficos de barras---
+
+
+
+Semana 6:
+Medidas con modelo de ruido
+
+IMPORTANTE: no tengo que poner vqe.initial_point, si lo hago el resultado de la energía siempre me da el
+            mismo valor. He vuelto a probar y ya no hace eso, creo que si hay que usarlo.
+            Con COBYLA me da siempre lo mismo asi que tengo que quitarlo, con SPSA no da lo mismo.
+
+
+1_hydrogen/hydrogen_3 folder:
+    --- EJECUTAR TODO DE NUEVO COMPROBANDO BIEN TODO --- Sí poner lo de vqe.initial_point
+    hydrogen_2 estaba hecho sin initial_point
+
+
+2_yukawa/yukawa_alpha_aer.ipynb:
+    He vuelto a ejecutar utilizando el optimizador de COBYLA y otra vez con el de SPSA.
+    Una de las veces, con el SPSA uno de los puntos se iba mucho. Raro ya que para ese punto se iba en todos
+    los casos, con los diferentes shots. Creo que fallaba por no poner lo de initial_point. Vuelvo a probar
+    poniendolo. Tambien falla con eso. Parece que COBYLA funciona mejor.
+
+    He vuelto a hacerlo con COBYLA y obtengo exactamente los mismos resultados, con los mismos valores.
+    Puede ser debido a lo de seed? Sí, cambiando seed se obtiene distinto resultado. Por lo que veo el
+    primer valor siempre es el mismo, pero si vuelves a hacer una medida en ese mismo punto cambia el
+    resultado. Si pones initial_point siempre da lo mismo.
+
+    Lo he hecho con COBYLA tanto sin punto inicial, como con el. Interpretar los resultados en
+    hydrogen_noise_distribution. Histogramas.
+    
+    He vuelto a hacerlo con SPSA para mostrar que a veces uno de los puntos se va. Se va en el mismo punto
+    para todos los shots, no entiendo muy bien el motivo.
+
+
+2_yukawa/yukawa_alpha_noise:
+    Modelo de ruido como en el hidrógeno.
+    
+    SLSQP con initial_point parece que no tiene error de medidas.
+    Sin el parece que si lo tiene
+    Voy a hacer el modelo de ruido con este optimizador. COBYLA parece que algo de error si que tiene y SPSA
+    tiene mucho error. Prefiero hacerlos sin error de momento.
+
+
+yukawa/yukawa_alpha_fixed:
+    Muchas medidas para un mismo alpha, para ver la dispersión de las medidas.
+    Con COBYLA dejo lo de initial_point, pero quito lo de seed, para que no de siempre el mismo valor.
+
+    Puede verse que a mayor shots, menor dispersión.
+
+    También lo he hecho para SPSA
+
+eigenvector:
+    He encontrado un ejemplo en el cual obtiene el autovector de un estado.
+    --- Tengo que intentar hacerlo para VQE ---
+
+
+
+Semana 7:
+yukawa/yukawa_alpha_fixed:
+    He hecho lo mismo pero con un alpha menor (0.1) para ver que para el algoritmo SPSA hay algunos puntos en
+    los cuales la energía es muy diferente a la esperada.
+
+    SLSQP y SPSA van muy mal, COBYLA va mucho mejor como puede apreciarse.
+    
+    También se ha hecho para un aplha cercano a 1 (0.9 y 0.99) ya que en las anteriores pruebas se observó que al
+    ir aumentando el valor de alpha los errores eran mas significativos y se alejaban más del valor 'trórico',
+    por eso nos ha resultado interesante estudiar esta zona.
+    Parece que solo dan resultados positivos para shors pequeños, al ir aumentando los disparos, el error se va
+    reduciendo.
+    Se ha utilizado COBYLA ya que parece que es el que mejor funciona.
+
+
+helium/atom_vqe:
+    He estado probando PySCFDriver con diferentes bases para no tener que montar en el hidrógeno las matrices
+    del hamiltoniano a mano ya que las integrales de dos cuerpos se pueden complicar mucho.
+    He probado con varias bases pero ninguna me da una matriz diagonal con autoestados -1/(2*n^2). Además, las
+    matrices de dos cuerpos me dan listas no matrices, y muy largas.
+
+
+4_potential well/potential_well_two_body_integral:
+    He hecho un potencial infinito de anchura L con dos electrones, creando el hamiltoniano con las integrales
+    de un cuerpo y de dos cuerpos, para tener en cuenta las interacciones entre los electrones.
+    He calculado la energía teniendo en cuenta que no hay interacción y cuando si la hay.
+    Cuando no hay interacción obtengo con VQE siempre el mismo valor, 2 veces la energía del estado de n=1,
+    pero cuando hay interacción VQE si que se ve afectado para shots pequeños, para shots grandes siempre
+    funciona y me da una energía un poco mayor. ¿A que se debe este aumento de energía?
+    Lo he hecho todo con COBYLA.
+
+
+eigenvector:
+    He intentado sacar el autovector mediante VQE pero no he podido.
+    --- Cuando Pablo me mande sus documentos tengo que volver a intentarlo ---
+
+
+yukawa/yukawa_3_Z!=1:
+    He obtenido la matriz del hamiltoniano para un Z != 1, antes lo tenía mal, me faltaba una Z en la integral.
+    
+
+yukawa/yukawa_alpha_exact:
+    Obtengo las soluciones exactas para Z = 2 y Z = 0.5.
+    Las energías pasan a ser positivas para alpha = Z.
+
+
+
+Semana 7:
+yukawa/yukawa_3_Z!=1:
+    No quería obtener una base para un potencial proporcinal a Z, quería mantener el potencial con Z = 1 y
+    coger una base con un Z =! 1.
+    Ahora pruebo que resultados me da en yukawa_alpha_exact_different_base.
+    Antes, en yukawa_alpha_exact, me daba algo proporcinal, obviamente, pero ese no era el objetivo.
+    Parece que con la base de Z = 0.5 se obtienen mejores resultados que con la base de Z = 2. Cuál puede
+    ser el motivo?
+
+
+4_potential well/potential_well_two_body_integral:
+    Había hecho mal las integrales estaba multiplicando el término de interacción en vez de dividiendolas.
+    Al multiplicarlas se obtienía un resultado numérico pero al dividir las integrales se hacen infinitas.
+    Por lo tanto, se ha cambiado el potencial por uno de contacto, que es una delta de dirac, entonces
+    ahora solo hay que hacer la integral respecto a una veriable, en vez de respecto a las 2.
+    Explicar cual es el motivo por el cual no es que no se pueda, es que esta idea no nos sirve.
+
+
+4_potential well/potential_well_delta_potential:
+    Se ha cambiado el potencial por una delta de dirac, como si fuesen colisiones.
+
+    Con N = 3 parece que se obtienen mejores resultados, pero para unos shots altos sigue dando un valor
+    de unos 11,3 que es 9,8 + 1,5. Por perturbaciones pensabamos que se podía hacer, pero debería de
+    haber dado 9,8 + 1, por lo tanto, no e hasta que punto es buen método hacerlo por perturbaciones.
+
+
+4_potential well/potential_well_delta_potential_v_0:    
+    Se ha hecho un barrido de valores de v_0, condiferentes shots.
+    Que conlusiones pueden sacarse?
+    He probado con N = 3, pero han pasado 2 horas y aún no había terminado shots = 16.
+
+yukawa/yukawa_alpha_exact:
+    He ampliado la zona para alpha>1 para Z<1 ya que antes salían resultados interesantes.
+    Pasan cosas raras
+
+
+
+Semana 8:
+4_potential well/potential_well_delta_potential_v_0:   
+    Se ha hecho un plot de la energía restando la energía sin interacción y dividiendo entre v_0
+    Parece que es lineal, pero cuanto mayor v_0 el aumento de la energía cada vez es más pequeños
+    Porque??
+
+
+2_yukawa/yukawa_alpha_aer_1.2.ipynb:
+    Estuve mirando alguna cosa más, lo escribí en el documento compartido de "problemas cuánticos".
+    En general he entendido mejor el problema "clásico", que es más complicado de lo que yo pensaba.
+    Con Mathematica he sacado algunas cosas que te puedo comentar cuando nos veamos. Pero en resumen, para
+    lo que te afecta, sí hay un punto de corte (en torno a 1.2 para nuestro caso) y sí hay estados de energía
+    muy pequeña pero positiva por encima de este punto de corte. Podemos mirar cómo afecta el tema de computación
+    cuántica a su cálculo.
+
+    Se ha estudiado la zona entre 0.9 y 1.3
+    Corta entre 1.10 y 1.15
+
+
+ 2_yukawa/yukawa_alpha_fixed.ipynb:
+    Se ha estudiado la zona de alpha = 1.2, para ver el caso anterior.
+
+
+
+Semana 9:
+
+2_yukawa/yukawa_alpha_exact/results_0.75_different_base:
+    Para yukawa me ha enseñado unas gráficas que muestran que para obtener el punto de corte para energía 0 utilizar
+    bases con un Z distinto de 1 se obtienen mejores resultados. También varía con el valor de N.
+    Con Z = 0.75 y N=3 parece que se obtienen buenos resultados (ver bibilografía que ha subido a la carpeta
+    compartida).
+
+    He probado con una base de Z = 0.75 y N =3 para ver donde ocurre el corte y pasa de energía negativa a positiva.
+    Obtengo un valor entre 1.1408 y 1.1449. A el le da un valor de 1.142, parece que funciona bastante bien.
+
+
+2_yukawa/yukawa_alpha_aer_1.2:
+    Hago lo mismo que arriba pero con ruido para ver que obtengo.
+    Z = 0.75 y N = 3.
+
+    Parece que fallaba por esto:
+    - sp.integrate(globals()[f'u_{i}0']*globals()[f'u_{j}0'] * Z * sp.exp(-alpha*r)/r, (r, 0, sp.oo)) <--- Estaba mal
+    - sp.integrate(globals()[f'u_{i}0']*globals()[f'u_{j}0'] * sp.exp(-alpha*r)/r, (r, 0, sp.oo)) 
+
+    Arreglandolo corta entre 1.1204 y 1.1245 pero más o menos se acerca, cauntos más shots, más cerca parece estar.
+
+
+4_potential well/potential_well_delta_potential_V0/results_COBYLA_N=2_1:
+    He ampliado el rango de valores de v0
+
+    Por lo que me dijo parece que para v0 proximo a 0 sigue una ecuación y para v0 mayores sigue otra.
+    Para V~0 tendrás pi^2+1.5*v y para v grande, te saldrá ~v/2, que creo es lo que te sale.
+
+
+4_potential well/potential_well_delta_potential_V0/results_vs_solutions.ipynb:
+    He hecho algo cutre para ver si sigue la misma ecuación que me ha dicho, le he sumado una constante para ver si se
+    ajusta a lo que me ha dicho.
+    Parece ser que para v0 grandes no me sale lo mismo que a el mientras que para v0 pequeñas si. No sabemos lo que puedes
+    ser ya que las integrales parecen que están bien y las matrices dan los mismos resultados.
+
+
+
+Semana 10:
+2_yukawa/yukawa_alpha_aer_1.2/yukawa_critical_point.ipynb:
+    Recorro los valores de la energía y almaceno los valores de alpha para los cuales la energía pase de ser negativa a
+    positiva, o viceversa.
+    Con esto se puede obtener el valor del punto crítico junto a su error.
+    Falta pulir un poco esto porque para las que solo tienen un punto no se que error coger, supongo que el error con los
+    pasos que voy haciendo en los valores de alpha.
+
+
+
+Semana 11:
+4_potential well/potential_well_delta_potential_V0:
+    Lo he hecho para N = 3 para ver si la energía para v0 altos bajaba y se ajustaba a lo de Francisco pero parece que no
+    ha mejorado mucho.
+
+    Respuesta:
+    pues esto tampoco parece que encaje. Hasta 100 va bastante parecido, pero mi cálculo (con N=3) satura mucho más
+    rápido (esta es la gráfica dividida por pi^2)
+    Yo lo dejaría, entendiendo que no son las mismas aproximaciones y que irnos a v=500 es forzar mucho la máquina,
+    me quedaría hasta v=10, donde las aproximaciones encajan y podemos comparar teoría.
+
+    vale, aunque yo le he dado varias vueltas y no veo dónde puede estar el problema. Por otra parte, pienso que si lo
+    haces hasta v0=1, es todo muy fácil de explicar y para lo que queremos es suficiente.
+
+    Otra respuesta:
+    Otra cosa, ahora volviendo a los electrones en la caja, me he dado cuenta que es normal que no de lo mismo con tú
+    método y el mio. El método que tú usas, aunque no lo diga explícitamente es perturbativo. el sumatorio de la parte de
+    la "g", en realidad es el de priemr orden, si lees documentación suelen poner algo como que podría haber términos
+    superiores pero se desprecian.
+    Tal y como lo abordaba yo, NO es perturbativo, es exacto en cuanto al hamiltoniano. La aproximación está en usar una
+    base finita, si usara una base infinita el resultado sería correcto. En tu caso, aunque uses una base infinita, solo
+    sería válido si v0 es pequeño.
+    Intento hacer con mathematica via perturbativa para cuadrarlo todo, pero vamos, en modo práctico no te puedes creer el
+    resultado si v0 grande, yo me quedaría en v0 pequeño, desde luego no más de 10 y tal vez incluso menor que 1. Ahí
+    sabemos lo que tiene que dar.
+
+
+
+
+Para el potencial de contacto debeia de dar la enegia sin interacción mas v0, según calculos analíticos.
+
+
+
+
+
+
+
+--- Mirar porque en Yukawa hay un valor crítico de alpha partir del cual no hay estados
+    ligados ---
+
+Si me da tiempo miro lo del hidrógeno.
+Sacar coeficientes de un autoestado en VQE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In other words, the weighted MaxCut problem is equivalent to finding the ground state
+of the Ising Hamiltonian
+
+
+
+Nuestros hamiltonianos son ising??
+
+
+
+
+
+
+
