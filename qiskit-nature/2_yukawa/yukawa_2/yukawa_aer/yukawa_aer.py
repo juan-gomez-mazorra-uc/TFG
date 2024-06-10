@@ -1,6 +1,7 @@
 import os
 import sys
 
+folder = os.getcwd().split('/')[-1]
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(path)
 
@@ -102,4 +103,4 @@ for N in N_list:
                 energies.append(eigenvalue)
                 print(eigenvalue)
 
-            yukawa_functions.save_to_csv(f'{path}/yukawa_aer/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [alphas, energies])
+            yukawa_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [alphas, energies])
