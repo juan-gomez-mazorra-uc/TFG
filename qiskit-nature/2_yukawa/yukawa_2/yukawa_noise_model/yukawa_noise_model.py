@@ -27,14 +27,15 @@ shots_list = [128, 16384]
 Z = 0.75
 
 # Save an IBM Quantum account and set it as your default account.
-with open('credentials.json', 'r') as file:
+with open(f'credentials.json', 'r') as file:
     credentials = json.load(file)
     api_token = credentials.get('api_token')
 QiskitRuntimeService.save_account(channel="ibm_quantum", token=api_token, set_as_default=True, overwrite=True)
  
 # Load saved credentials
 service = QiskitRuntimeService()
-backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
+# backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
+backends = ['ibm_osaka', 'ibm_kyoto']
 
 
 def hamiltonian_alpha(alpha = 0, N = 3, l = 0):
