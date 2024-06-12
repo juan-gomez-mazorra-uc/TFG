@@ -1,7 +1,7 @@
 import os
 import sys
 
-folder = os.getcwd().split('/')[-1]
+folder = folder = os.path.dirname(__file__).split('\\')[-1]
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(path)
 
