@@ -21,8 +21,8 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 # optimizer_list_str = ['COBYLA', 'SLSQP', 'SPSA']
 optimizer_list = [COBYLA]
 optimizer_list_str = ['COBYLA']
-N_list = [3, 4, 5]
-shots_list = [16, 128, 1024, 16384]
+N_list = [2]
+shots_list = [16384]
 L = 1
 
 
@@ -74,7 +74,7 @@ for n in range(1, n_max+1):
 
 
 # VQE
-V_0_list = np.linspace(0, 10, 200)
+V_0_list = np.linspace(0, 100, 200)
 
 for N in N_list:
     for i, optimizer in enumerate(optimizer_list):
@@ -124,4 +124,4 @@ for N in N_list:
                 energies.append(eigenvalue)
                 print(eigenvalue)
 
-            potential_well_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [V_0_list, energies])
+            potential_well_functions.save_to_csv(f'{path}/{folder}/N={N} (V large)/results_{optimizer_list_str[i]}', f'shots={shots}', [V_0_list, energies])

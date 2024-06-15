@@ -1,7 +1,7 @@
 import os
 import sys
 
-folder = folder = os.path.dirname(__file__).split('\\')[-1]
+folder = folder = os.path.dirname(__file__).split('/')[-1]
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(path)
 
@@ -43,4 +43,4 @@ for N in N_list:
         eigenvalue = np.min(list(h_pq_matrix.eigenvals().keys()))
         energies.append(eigenvalue)
 
-    yukawa_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{Z}', f'N={N}', [alphas, energies])
+    yukawa_functions.save_to_csv(f'{path}/{folder}/results_{Z}', f'N={N}', [alphas, energies])

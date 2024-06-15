@@ -13,7 +13,7 @@ import potential_well_functions
 L = 1
 # N_list = [2, 3, 4]
 N_list = [5, 6, 7, 8]
-V_0_list = np.linspace(0, 10, 200)
+V_0_list = np.linspace(0, 100, 200)
 
 
 # Define the wave function |psi>
