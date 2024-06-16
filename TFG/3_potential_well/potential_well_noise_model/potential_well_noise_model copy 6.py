@@ -23,8 +23,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 optimizer_list = [COBYLA]
 optimizer_list_str = ['COBYLA']
 N_list = [2]
-# shots_list = [128, 16384]
-shots_list = [128]
+shots_list = [16384]
 L = 1
 
 # Save an IBM Quantum account and set it as your default account.
@@ -36,7 +35,7 @@ QiskitRuntimeService.save_account(channel="ibm_quantum", token=api_token, set_as
 # Load saved credentials
 service = QiskitRuntimeService()
 # backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
-backends = ['ibm_brisbane']
+backends = ['ibm_kyoto']
 
 
 def hamiltonian_interaction(L, N = 3, v_0 = 1):
@@ -87,15 +86,7 @@ for n in range(1, n_max+1):
 
 
 # VQE
-# V_0_list = np.linspace(0, 10, 200)
-V_0_list = [9.648241206030152,
-9.698492462311558,
-9.748743718592966,
-9.798994974874372,
-9.84924623115578,
-9.899497487437186,
-9.949748743718594,
-10.0]
+V_0_list = np.linspace(0, 10, 200)
 
 for N in N_list:
     for i, optimizer in enumerate(optimizer_list):
@@ -153,4 +144,4 @@ for N in N_list:
                     energies.append(eigenvalue)
                     print(eigenvalue)
 
-                # potential_well_functions.save_to_csv(f'{path}/{folder}/results_{optimizer_list_str[i]}_{shots}', f'backend={backend_name}', [V_0_list, energies])
+                potential_well_functions.save_to_csv(f'{path}/{folder}/results_{optimizer_list_str[i]}_{shots}', f'backend={backend_name}', [V_0_list, energies])

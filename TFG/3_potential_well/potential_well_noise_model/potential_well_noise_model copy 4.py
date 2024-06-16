@@ -23,8 +23,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 optimizer_list = [COBYLA]
 optimizer_list_str = ['COBYLA']
 N_list = [2]
-# shots_list = [128, 16384]
-shots_list = [128]
+shots_list = [16384]
 L = 1
 
 # Save an IBM Quantum account and set it as your default account.
@@ -35,7 +34,6 @@ QiskitRuntimeService.save_account(channel="ibm_quantum", token=api_token, set_as
  
 # Load saved credentials
 service = QiskitRuntimeService()
-# backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
 backends = ['ibm_brisbane']
 
 
@@ -88,14 +86,39 @@ for n in range(1, n_max+1):
 
 # VQE
 # V_0_list = np.linspace(0, 10, 200)
-V_0_list = [9.648241206030152,
+V_0_list = [
+    8.492462311557789,
+8.542713567839197,
+8.592964824120603,
+8.643216080402011,
+8.693467336683417,
+8.743718592964825,
+8.793969849246231,
+8.84422110552764,
+8.894472361809045,
+8.944723618090453,
+8.99497487437186,
+9.045226130653267,
+9.095477386934673,
+9.145728643216081,
+9.195979899497488,
+9.246231155778895,
+9.296482412060302,
+9.34673366834171,
+9.396984924623116,
+9.447236180904524,
+9.49748743718593,
+9.547738693467338,
+9.597989949748744,
+9.648241206030152,
 9.698492462311558,
 9.748743718592966,
 9.798994974874372,
 9.84924623115578,
 9.899497487437186,
 9.949748743718594,
-10.0]
+10.0
+]
 
 for N in N_list:
     for i, optimizer in enumerate(optimizer_list):
