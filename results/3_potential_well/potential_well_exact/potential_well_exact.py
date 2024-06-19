@@ -17,13 +17,13 @@ V_0_list = np.linspace(0, 10, 200)
 
 # Define the wave function |psi>
 def psi(n, x):
-    return np.sqrt(2 / L) * sp.sin(n * sp.pi * x / L)
+    return sp.sqrt(2 / L) * sp.sin(n * sp.pi * x / L)
 
 
 # Verify normalization
 x = sp.symbols('x')
 n = sp.symbols('n', integer=True, positive=True)
-psi_expr = sp.sqrt(2) * sp.sin(n * sp.pi * x)
+psi_expr = sp.sqrt(2 / L) * sp.sin(n * sp.pi * x / L)
 normalization = sp.integrate(psi_expr**2, (x, 0, L))
 # print(normalization)
 
@@ -53,7 +53,7 @@ for N in N_list:
             H_ij[i][j] += v0 * sp.integrate((phi[i] * phi[j]).subs(y, x), (x, 0, L))
             H_ij[j][i] = H_ij[i][j]
 
-    # Calculate eigenvalues and eigenvectors
+    # Calculate eigenvalues
     energies = []
     H_ij_matrix = sp.Matrix(H_ij)
 

@@ -1,7 +1,7 @@
 import os
 import sys
 
-folder = folder = os.path.dirname(__file__).split('\\')[-1]
+folder = folder = os.path.dirname(__file__).split('/')[-1]
 path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(path)
 
@@ -17,9 +17,9 @@ from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 
 
-optimizer_list = [COBYLA, SLSQP, SPSA]
-optimizer_list_str = ['COBYLA', 'SLSQP', 'SPSA']
-N_list = [5]
+optimizer_list = [COBYLA]
+optimizer_list_str = ['COBYLA']
+N_list = [2, 3, 4, 5]
 shots_list = [16, 128, 1024, 16384]
 Z = 0.75
 
@@ -53,7 +53,7 @@ for n in range(1, n_max+1):
 
 
 # VQE
-alphas = np.linspace(0, 2, 200)
+alphas = np.linspace(1, 1.2, 200)
 
 for N in N_list:
     for i, optimizer in enumerate(optimizer_list):
