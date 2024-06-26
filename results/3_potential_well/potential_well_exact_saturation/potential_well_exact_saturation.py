@@ -13,7 +13,7 @@ import potential_well_functions
 
 L = 1
 # N_list = [2, 3, 4]
-N_list = [2]
+N_list = [3]
 V_0_list = np.linspace(0, 100, 200)
 
 
@@ -81,9 +81,10 @@ for N in N_list:
 
     data = {'v0': V_0_list}
     for i, eigenvalue in enumerate(eigenvalues):
-        data[f'energy_{i}'] = eigenvalue
+        if i <= 3:
+            data[f'energy_{i}'] = eigenvalue
 
-    if not os.path.exists(f'{path}/{folder}/results_{L}'):
+    if not os.path.exists(f'{path}/{folder}/results_{L} (V large)'):
         os.makedirs(f'{path}/{folder}/results_{L} (V large)')
 
     df = pd.DataFrame(data)
