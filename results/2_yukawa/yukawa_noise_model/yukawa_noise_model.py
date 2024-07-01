@@ -34,8 +34,7 @@ QiskitRuntimeService.save_account(channel="ibm_quantum", token=api_token, set_as
  
 # Load saved credentials
 service = QiskitRuntimeService()
-# backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
-backends = ['ibm_osaka', 'ibm_kyoto']
+backends = ['ibm_sherbrooke', 'ibm_brisbane', 'ibm_osaka', 'ibm_kyoto']
 
 
 def hamiltonian_alpha(alpha = 0, N = 3, l = 0):

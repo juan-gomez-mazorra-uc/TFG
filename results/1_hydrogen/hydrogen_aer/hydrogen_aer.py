@@ -23,7 +23,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 optimizer_list = [COBYLA, SLSQP, SPSA]
 optimizer_list_str = ['COBYLA', 'SLSQP', 'SPSA']
 shots_list = [16, 128, 1024, 16384]
-ansatz_str = 'UCCSD' # 'TwoLocal' 'UCCSD' 'UCCSD_no_initial_point' 
+ansatz_str = 'UCCSD' # 'TwoLocal' 'UCCSD' 'UCCSD_no_initial_point'
 
 
 def hamiltonian_distance(distance):
@@ -37,9 +37,8 @@ def hamiltonian_distance(distance):
     )
 
     problem = driver.run()
-    hamiltonian = problem.hamiltonian
     
-    return hamiltonian
+    return problem
 
 
 solver = GroundStateEigensolver(
@@ -76,6 +75,7 @@ if ansatz_str == 'UCCSD' or 'UCCSD_no_initial_point':
         ),
     )
 
+
 # VQE
 distances = np.linspace(0.25, 2.5, 200)
 
@@ -99,12 +99,14 @@ for i, optimizer in enumerate(optimizer_list):
             vqe.initial_point = np.zeros(ansatz.num_parameters)
         
         for distance in distances:
-            hamiltonian = hamiltonian_distance(distance)
+            problem = hamiltonian_distance(distance)
+            hamiltonian = problem.hamiltonian
 
             mapper = JordanWignerMapper()
             fermionic_op = problem.hamiltonian.second_q_op()
             qubit_op = mapper.map(fermionic_op)
 
+            result = solver.solve(problem)
             result = solver.solve(problem)
             result_vqe = vqe.compute_minimum_eigenvalue(operator=qubit_op)
 
