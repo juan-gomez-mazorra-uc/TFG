@@ -51,6 +51,7 @@ def hamiltonian_interaction(L, N = 3, v_0 = 1):
                     h_ijkl[i][j][k][l] = sp.integrate(globals()[f'h_{i}{j}{k}{l}'], (x_1, 0, L))
 
     h2_aa = np.array(h_ijkl, dtype=float)
+    print(h2_aa)
 
     hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa)
 
@@ -72,56 +73,57 @@ for n in range(1, n_max+1):
         globals()[f'phi_{n}_1'] = potential_well_functions.well_wavefunction(n, L, sp.Symbol('x_1'))
         globals()[f'phi_{n}_2'] = potential_well_functions.well_wavefunction(n, L, sp.Symbol('x_1'))
 
+hamiltonian_interaction(1, 2, 0.2)
 
-# VQE
-V_0_list = np.linspace(0, 10, 200)
+# # VQE
+# V_0_list = np.linspace(0, 10, 200)
 
-for N in N_list:
-    for i, optimizer in enumerate(optimizer_list):
-        for shots in shots_list:
-            energies = []
+# for N in N_list:
+#     for i, optimizer in enumerate(optimizer_list):
+#         for shots in shots_list:
+#             energies = []
 
-            hamiltonian = hamiltonian_interaction(L, N, 1)
+#             hamiltonian = hamiltonian_interaction(L, N, 1)
 
-            mapper = JordanWignerMapper()
-            fermionic_op = hamiltonian.second_q_op()
-            qubit_op = mapper.map(fermionic_op)
+#             mapper = JordanWignerMapper()
+#             fermionic_op = hamiltonian.second_q_op()
+#             qubit_op = mapper.map(fermionic_op)
 
-            num_spatial_orbitals = int(fermionic_op.num_spin_orbitals/2)
-            # The tuple of the number of alpha- and beta-spin particles
-            num_particles = (1, 1)
+#             num_spatial_orbitals = int(fermionic_op.num_spin_orbitals/2)
+#             # The tuple of the number of alpha- and beta-spin particles
+#             num_particles = (1, 1)
 
-            ansatz = UCCSD(
-                num_spatial_orbitals,
-                num_particles,
-                mapper,
-                initial_state=HartreeFock(
-                    num_spatial_orbitals,
-                    num_particles,
-                    mapper,
-                ),
-            )
+#             ansatz = UCCSD(
+#                 num_spatial_orbitals,
+#                 num_particles,
+#                 mapper,
+#                 initial_state=HartreeFock(
+#                     num_spatial_orbitals,
+#                     num_particles,
+#                     mapper,
+#                 ),
+#             )
 
-            seed = 170
-            algorithm_globals.random_seed = seed
+#             seed = 170
+#             algorithm_globals.random_seed = seed
 
-            noiseless_estimator = AerEstimator(
-                run_options={"seed": seed, "shots": shots},
-                transpile_options={"seed_transpiler": seed},
-            )
+#             noiseless_estimator = AerEstimator(
+#                 run_options={"seed": seed, "shots": shots},
+#                 transpile_options={"seed_transpiler": seed},
+#             )
 
-            vqe_solver = VQE(noiseless_estimator, ansatz, optimizer())
-            vqe_solver.initial_point = np.zeros(ansatz.num_parameters)
+#             vqe_solver = VQE(noiseless_estimator, ansatz, optimizer())
+#             vqe_solver.initial_point = np.zeros(ansatz.num_parameters)
 
-            for V_0 in V_0_list:
-                hamiltonian = hamiltonian_interaction(L, N, V_0)
+#             for V_0 in V_0_list:
+#                 hamiltonian = hamiltonian_interaction(L, N, V_0)
 
-                mapper = JordanWignerMapper()
-                fermionic_op = hamiltonian.second_q_op()
-                qubit_op = mapper.map(fermionic_op)
+#                 mapper = JordanWignerMapper()
+#                 fermionic_op = hamiltonian.second_q_op()
+#                 qubit_op = mapper.map(fermionic_op)
                 
-                eigenvalue = vqe_solver.compute_minimum_eigenvalue(operator=qubit_op).eigenvalue
-                energies.append(eigenvalue)
-                print(eigenvalue)
+#                 eigenvalue = vqe_solver.compute_minimum_eigenvalue(operator=qubit_op).eigenvalue
+#                 energies.append(eigenvalue)
+#                 print(eigenvalue)
 
-            potential_well_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [V_0_list, energies])
+#             potential_well_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [V_0_list, energies])
