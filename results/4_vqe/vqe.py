@@ -389,7 +389,7 @@ def makeIntegralGPQRS(V0, L, n1, n2, n3, n4):
     if n1 + n2 - n3 - n4 == 0:
         c += 1
     
-    return 1/2 * V0 * 4.0/(L*L) * c/8.0
+    return V0 * 4.0/(L*L) * c/8.0
 
 
 def returnk(n):
@@ -449,7 +449,7 @@ if __name__ == "__main__":
     
     Hdouble = buildDoubleParticleH(hpqrs, A, Ap)
 
-    H = Hsingle + Hdouble
+    H = Hsingle + 1/2 * Hdouble
 
     # We restrict to the states in which we are interested in
     interestingStates = [5, 6, 7, 8, 9, 10]
@@ -473,7 +473,7 @@ if __name__ == "__main__":
     # We build the full double particle Hamiltonian
     Hdouble = LbuildDoubleParticleH(hpqrs, A, Ap)
 
-    H = Hsingle + Hdouble
+    H = Hsingle + 1/2 * Hdouble
         
     # We restrict to the states in which we are interested in
     interestingStates = [states[5], states[6], states[7], states[8], states[9], states[10]]

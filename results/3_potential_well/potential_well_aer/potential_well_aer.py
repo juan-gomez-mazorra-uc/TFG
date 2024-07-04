@@ -21,7 +21,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 # optimizer_list_str = ['COBYLA', 'SLSQP', 'SPSA']
 optimizer_list = [COBYLA]
 optimizer_list_str = ['COBYLA']
-N_list = [3, 4, 5]
+N_list = [2, 3, 4, 5]
 shots_list = [16, 128, 1024, 16384]
 L = 1
 
@@ -51,7 +51,6 @@ def hamiltonian_interaction(L, N = 3, v_0 = 1):
                     h_ijkl[i][j][k][l] = sp.integrate(globals()[f'h_{i}{j}{k}{l}'], (x_1, 0, L))
 
     h2_aa = np.array(h_ijkl, dtype=float)
-    print(h2_aa)
 
     hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa)
 
@@ -73,7 +72,6 @@ for n in range(1, n_max+1):
         globals()[f'phi_{n}_1'] = potential_well_functions.well_wavefunction(n, L, sp.Symbol('x_1'))
         globals()[f'phi_{n}_2'] = potential_well_functions.well_wavefunction(n, L, sp.Symbol('x_1'))
 
-hamiltonian_interaction(1, 2, 0.2)
 
 # VQE
 V_0_list = np.linspace(0, 10, 200)
