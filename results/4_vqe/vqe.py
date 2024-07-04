@@ -389,7 +389,7 @@ def makeIntegralGPQRS(V0, L, n1, n2, n3, n4):
     if n1 + n2 - n3 - n4 == 0:
         c += 1
     
-    return V0 * 4.0/(L*L) * c/8.0
+    return 1/2 * V0 * 4.0/(L*L) * c/8.0
 
 
 def returnk(n):
