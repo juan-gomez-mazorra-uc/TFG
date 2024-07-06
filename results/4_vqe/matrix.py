@@ -473,7 +473,7 @@ if __name__ == "__main__":
     # We build the full double particle Hamiltonian
     Hdouble = LbuildDoubleParticleH(hpqrs, A, Ap)
 
-    H = Hsingle + Hdouble
+    H = Hsingle + 1/2 * Hdouble
         
     # We restrict to the states in which we are interested in
     interestingStates = [states[5], states[6], states[7], states[8], states[9], states[10]]
@@ -483,103 +483,3 @@ if __name__ == "__main__":
     print(H)
     print('Hrestricted using the low dimension representation')
     print(Hres)
-
-
-
-
-
-    #####################################################
-    #####################################################
-    #####################################################
-    #####################################################
-
-    import os
-    import sys
-
-
-    import sympy as sp
-    import numpy as np
-    from qiskit_algorithms import VQE
-    from qiskit_algorithms.utils import algorithm_globals
-    from qiskit_aer.primitives import Estimator as AerEstimator
-    from qiskit_algorithms.optimizers import COBYLA, SLSQP, SPSA
-    from qiskit_nature.second_q.mappers import JordanWignerMapper
-    from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-    from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
-
-
-    # optimizer_list = [COBYLA, SLSQP, SPSA]
-    # optimizer_list_str = ['COBYLA', 'SLSQP', 'SPSA']
-    optimizer_list = [COBYLA]
-    optimizer_list_str = ['COBYLA']
-    N_list = [3, 4, 5]
-    shots_list = [16, 128, 1024, 16384]
-    L = 1
-
-
-    def hamiltonian_interaction(H):
-
-        h1_a = np.array(H, dtype=float)
-        size = len(h1_a)
-        h2_aa = np.zeros((size, size, size, size))
-
-        hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa)
-        print(hamiltonian)
-
-        
-
-        return hamiltonian
-
-
-    # VQE
-    V_0_list = np.linspace(1, 1, 200)
-
-    for N in N_list:
-        for i, optimizer in enumerate(optimizer_list):
-            for shots in shots_list:
-                energies = []
-
-                hamiltonian = hamiltonian_interaction(H)
-
-                mapper = JordanWignerMapper()
-                fermionic_op = hamiltonian.second_q_op()
-                qubit_op = mapper.map(fermionic_op)
-
-                num_spatial_orbitals = int(fermionic_op.num_spin_orbitals/2)
-                # The tuple of the number of alpha- and beta-spin particles
-                num_particles = (1, 1)
-
-                ansatz = UCCSD(
-                    num_spatial_orbitals,
-                    num_particles,
-                    mapper,
-                    initial_state=HartreeFock(
-                        num_spatial_orbitals,
-                        num_particles,
-                        mapper,
-                    ),
-                )
-
-                seed = 170
-                algorithm_globals.random_seed = seed
-
-                noiseless_estimator = AerEstimator(
-                    run_options={"seed": seed, "shots": shots},
-                    transpile_options={"seed_transpiler": seed},
-                )
-
-                vqe_solver = VQE(noiseless_estimator, ansatz, optimizer())
-                vqe_solver.initial_point = np.zeros(ansatz.num_parameters)
-
-                for V_0 in V_0_list:
-                    hamiltonian = hamiltonian_interaction(H)
-
-                    mapper = JordanWignerMapper()
-                    fermionic_op = hamiltonian.second_q_op()
-                    qubit_op = mapper.map(fermionic_op)
-                    
-                    eigenvalue = vqe_solver.compute_minimum_eigenvalue(operator=qubit_op).eigenvalue
-                    energies.append(eigenvalue)
-                    print(eigenvalue)
-
-                # potential_well_functions.save_to_csv(f'{path}/{folder}/N={N}/results_{optimizer_list_str[i]}', f'shots={shots}', [V_0_list, energies])
