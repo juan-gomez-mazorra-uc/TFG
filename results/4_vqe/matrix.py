@@ -429,12 +429,13 @@ if __name__ == "__main__":
 
     # Potential well length
     L = 1
+    V0 = 20
 
     # We create the hpq matrix
     hpq = buildHPQ(L)
 
     # We create the hpqrs matrix
-    hpqrs = buildGPQRS(1, L)
+    hpqrs = buildGPQRS(V0, L)
 
     #################################################
     # We work in the high dimension representation  #
